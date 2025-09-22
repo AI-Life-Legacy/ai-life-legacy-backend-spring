@@ -31,9 +31,9 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         String token = getAccessToken(authorizationHeader);
 
         // 3. 토큰 유효성 검증
-        if (token != null && tokenProvider.validToken(token)) {
+        if (token != null && tokenProvider.validAccessToken(token)) {
             // 4. 토큰에서 Authentication 객체 생성
-            Authentication authentication = tokenProvider.getAuthentication(token);
+            Authentication authentication = tokenProvider.getAccessTokenAuthentication(token);
             // 5. SecurityContextHolder에 저장
             var context = SecurityContextHolder.createEmptyContext();
             context.setAuthentication(authentication);

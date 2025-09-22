@@ -37,7 +37,7 @@ public class SecurityConfig {
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             // 세션을 만들지 않음 (JWT 방식 → 요청마다 토큰 인증)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.POST, "/login", "/signup").permitAll() // 로그인/회원가입은 토큰 없이 접근 가능
+                .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/signup", "/auth/refresh").permitAll() // 로그인/회원가입은 토큰 없이 접근 가능
                 .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
             )
             .exceptionHandling(ex -> ex

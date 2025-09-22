@@ -1,5 +1,4 @@
-package org.example.ailifelegacy.api.auth.dto;
-
+package org.example.ailifelegacy.api.auth.dto.request;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,7 +6,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-public class LoginDto {
+public class SignupDto {
     private String email;
     private String password;
 }

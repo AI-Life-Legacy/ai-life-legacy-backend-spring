@@ -15,4 +15,7 @@ spring:
 
 jwt:
   issuer: ai-life-legacy
-  secretKey: ai-life-legacy-secret-key-must-be-at-least-256-bits-long-for-security
+  access-token-secret-key: my-secret-key
+  access-token-expiration: 3600000   # 1시간 (밀리초)
+  refresh-token-secret-key: my-refresh-secret
+  refresh-token-expiration: 1209600000  # 14일 (밀리초)

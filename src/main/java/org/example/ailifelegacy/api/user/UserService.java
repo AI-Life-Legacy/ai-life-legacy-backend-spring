@@ -2,7 +2,7 @@ package org.example.ailifelegacy.api.user;
 
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.example.ailifelegacy.entity.User;
+import org.example.ailifelegacy.api.user.entity.User;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor

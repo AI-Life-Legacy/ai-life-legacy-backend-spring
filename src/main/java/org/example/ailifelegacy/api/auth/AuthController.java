@@ -1,33 +1,49 @@
 package org.example.ailifelegacy.api.auth;
 
 import lombok.RequiredArgsConstructor;
-import org.example.ailifelegacy.api.auth.dto.LoginDto;
-import org.example.ailifelegacy.api.auth.dto.SignupDto;
+import org.example.ailifelegacy.api.auth.dto.request.LoginDto;
+import org.example.ailifelegacy.api.auth.dto.request.RefreshTokenDto;
+import org.example.ailifelegacy.api.auth.dto.request.SignupDto;
+import org.example.ailifelegacy.api.auth.dto.response.LoginResponseDto;
+import org.example.ailifelegacy.api.auth.dto.response.RefreshTokenResponseDto;
+import org.example.ailifelegacy.api.auth.dto.response.SignupResponseDto;
 import org.example.ailifelegacy.common.response.SuccessResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RestController
+@RequestMapping("/auth")
 public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<SuccessResponse<String>> login(@RequestBody LoginDto loginDto) {
-        String accessToken = authService.login(loginDto);
+    public ResponseEntity<SuccessResponse<LoginResponseDto>> login(@RequestBody LoginDto loginDto) {
+        LoginResponseDto loginResponseDto = authService.login(loginDto);
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(SuccessResponse.of(accessToken));
+            .body(SuccessResponse.of(loginResponseDto));
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<SuccessResponse<String>> signup(@RequestBody SignupDto signupDto) {
-        String accessToken = authService.signup(signupDto);
+    public ResponseEntity<SuccessResponse<SignupResponseDto>> signup(@RequestBody SignupDto signupDto) {
+        SignupResponseDto signupResponseDto = authService.signup(signupDto);
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(SuccessResponse.created(accessToken));
+            .body(SuccessResponse.created(signupResponseDto));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<SuccessResponse<RefreshTokenResponseDto>> refreshToken(@RequestBody
+        RefreshTokenDto refreshTokenDto) {
+        RefreshTokenResponseDto refreshTokenResponseDto = authService.refreshToken(refreshTokenDto);
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(SuccessResponse.of(refreshTokenResponseDto));
+
     }
 }
