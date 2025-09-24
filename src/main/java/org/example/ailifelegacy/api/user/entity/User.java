@@ -2,9 +2,13 @@ package org.example.ailifelegacy.api.user.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.example.ailifelegacy.api.auth_identity.entity.AuthIdentity;
+import org.example.ailifelegacy.api.user_case.entity.UserCase;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -15,7 +19,10 @@ import java.util.UUID;
 
 @Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @Getter
+@Setter
+@Builder
 @Entity
 public class User {
 
@@ -32,6 +39,10 @@ public class User {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_case_id")
+    private UserCase userCase;
 
     // 연관관계 매핑들
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
