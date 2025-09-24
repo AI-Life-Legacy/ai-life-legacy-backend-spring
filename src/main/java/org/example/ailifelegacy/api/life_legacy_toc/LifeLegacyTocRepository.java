@@ -1,7 +1,9 @@
 package org.example.ailifelegacy.api.life_legacy_toc;
 
+import java.util.List;
 import java.util.Optional;
 import org.example.ailifelegacy.api.life_legacy_toc.entity.LifeLegacyToc;
+import org.example.ailifelegacy.api.user_case.entity.UserCase;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -9,4 +11,6 @@ import org.springframework.data.repository.query.Param;
 public interface LifeLegacyTocRepository extends JpaRepository <LifeLegacyToc, Long> {
     @Query("SELECT DISTINCT t FROM LifeLegacyToc t LEFT JOIN FETCH t.questions WHERE t.id = :tocId")
     Optional<LifeLegacyToc> findByIdWithQuestions(@Param("tocId") Long tocId);
+
+    List<LifeLegacyToc> findByUserCases(UserCase userCase);
 }

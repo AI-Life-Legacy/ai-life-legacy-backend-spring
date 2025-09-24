@@ -33,7 +33,7 @@ public class LifeLegacyController {
 
     @PostMapping("/questions/{questionId}/answers")
     public ResponseEntity<SuccessResponse<Void>> answerQuestion(
-        Authentication authentication, @PathVariable("questionid") Long questionId,
+        Authentication authentication, @PathVariable("questionId") Long questionId,
         @RequestBody SaveUserAnswerDto saveUserAnswerDto
     ) {
         UUID uuid = (UUID) authentication.getPrincipal();

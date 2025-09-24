@@ -11,5 +11,7 @@ public interface LifeLegacyRepository extends JpaRepository <LifeLegacyAnswer, L
 
     List<LifeLegacyAnswer> findByUser(User user);
 
+    Optional<LifeLegacyAnswer> findOneByUserAndId(User user, Long answerId);
+
     Optional<LifeLegacyAnswer>  findOneByUserAndQuestion(User user, LifeLegacyQuestion question);
 }

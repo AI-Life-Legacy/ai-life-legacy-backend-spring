@@ -24,6 +24,14 @@ public class SuccessResponse<T> {
             .build();
     }
 
+    public static SuccessResponse<Void> updated() {
+        return SuccessResponse.<Void>builder()
+            .status(HttpStatus.OK.value())
+            .message("success")
+            .data(null)
+            .build();
+    }
+
     // 201 Created with body
     public static <T> SuccessResponse<T> created(T data) {
         return SuccessResponse.<T>builder()
