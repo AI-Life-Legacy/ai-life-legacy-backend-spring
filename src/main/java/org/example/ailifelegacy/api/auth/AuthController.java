@@ -1,5 +1,6 @@
 package org.example.ailifelegacy.api.auth;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.ailifelegacy.api.auth.dto.request.LoginDto;
 import org.example.ailifelegacy.api.auth.dto.request.RefreshTokenDto;
@@ -22,7 +23,9 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<SuccessResponse<LoginResponseDto>> login(@RequestBody LoginDto loginDto) {
+    public ResponseEntity<SuccessResponse<LoginResponseDto>> login(
+        @Valid @RequestBody LoginDto loginDto
+    ) {
         LoginResponseDto loginResponseDto = authService.login(loginDto);
         return ResponseEntity
             .status(HttpStatus.OK)
@@ -30,20 +33,22 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<SuccessResponse<SignupResponseDto>> signup(@RequestBody SignupDto signupDto) {
+    public ResponseEntity<SuccessResponse<SignupResponseDto>> signup(
+        @Valid @RequestBody SignupDto signupDto
+    ) {
         SignupResponseDto signupResponseDto = authService.signup(signupDto);
         return ResponseEntity
-            .status(HttpStatus.OK)
+            .status(HttpStatus.CREATED)
             .body(SuccessResponse.created(signupResponseDto));
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<SuccessResponse<RefreshTokenResponseDto>> refreshToken(@RequestBody
-        RefreshTokenDto refreshTokenDto) {
+    public ResponseEntity<SuccessResponse<RefreshTokenResponseDto>> refreshToken(
+        @Valid @RequestBody RefreshTokenDto refreshTokenDto
+    ) {
         RefreshTokenResponseDto refreshTokenResponseDto = authService.refreshToken(refreshTokenDto);
         return ResponseEntity
             .status(HttpStatus.OK)
             .body(SuccessResponse.of(refreshTokenResponseDto));
-
     }
 }

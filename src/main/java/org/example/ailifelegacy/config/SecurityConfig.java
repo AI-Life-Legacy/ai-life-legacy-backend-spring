@@ -2,8 +2,8 @@
 package org.example.ailifelegacy.config;
 
 import lombok.RequiredArgsConstructor;
-import org.example.ailifelegacy.common.exception.JwtAccessDeniedHandler;
-import org.example.ailifelegacy.common.exception.JwtAuthenticationEntryPoint;
+import org.example.ailifelegacy.common.error.JwtAccessDeniedHandler;
+import org.example.ailifelegacy.common.error.JwtAuthenticationEntryPoint;
 import org.example.ailifelegacy.api.jwt.TokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

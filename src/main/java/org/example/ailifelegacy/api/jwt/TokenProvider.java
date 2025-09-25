@@ -4,8 +4,11 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.example.ailifelegacy.api.jwt.dto.TokenPair;
 import org.example.ailifelegacy.api.user.entity.User;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,15 +22,28 @@ import java.util.Date;
 public class TokenProvider {
 
     private final JwtProperties jwtProperties;
-
-    public String generateAccessToken(User user) {
+    public LocalDateTime calculateExpiry(Long expirationMillis) {
         Date now = new Date();
-        return makeToken(new Date(now.getTime() + jwtProperties.getAccessTokenExpiration()), user, jwtProperties.getAccessTokenSecretKey());
+        Date expiresAtDate = new Date(now.getTime() + expirationMillis);
+        return expiresAtDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
 
-    public String generateRefreshToken(User user) {
+    public TokenPair generateTokenPair(User user) {
         Date now = new Date();
-        return makeToken(new Date(now.getTime() + jwtProperties.getRefreshTokenExpiration()), user, jwtProperties.getRefreshTokenSecretKey());
+
+        String accessToken = makeToken(
+            new Date(now.getTime() + jwtProperties.getAccessTokenExpiration()),
+            user,
+            jwtProperties.getAccessTokenSecretKey()
+        );
+
+        String refreshToken = makeToken(
+            new Date(now.getTime() + jwtProperties.getRefreshTokenExpiration()),
+            user,
+            jwtProperties.getRefreshTokenSecretKey()
+        );
+
+        return new TokenPair(accessToken, refreshToken);
     }
 
     private String makeToken(Date expiry, User user, String secretKey) {

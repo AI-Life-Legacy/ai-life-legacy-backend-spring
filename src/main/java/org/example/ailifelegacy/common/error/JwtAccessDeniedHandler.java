@@ -1,4 +1,4 @@
-package org.example.ailifelegacy.common.exception;
+package org.example.ailifelegacy.common.error;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;

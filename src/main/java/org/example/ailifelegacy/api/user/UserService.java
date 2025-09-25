@@ -71,7 +71,6 @@ public class UserService {
             .toList();
     }
 
-    @Transactional
     public List<GetUserTocWithQuestionsResponseDto> getUserTocAndQuestions(UUID uuid) {
         User user = userRepository.findByUuid(uuid)
             .orElseThrow(() -> {
@@ -98,7 +97,6 @@ public class UserService {
             .toList();
     }
 
-    @Transactional
     public GetUserAnswerResponseDto getUserAnswer(Long questionId, UUID uuid) {
         User user = userRepository.findByUuid(uuid)
             .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
