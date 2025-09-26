@@ -1,11 +1,13 @@
 package org.example.ailifelegacy.api.life_legacy;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.example.ailifelegacy.api.life_legacy.dto.request.SaveUserAnswerDto;
 import org.example.ailifelegacy.api.life_legacy.dto.response.GetUserQuestionsDto;
 import org.example.ailifelegacy.common.response.SuccessResponse;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +24,10 @@ public class LifeLegacyController {
     private final LifeLegacyService lifeLegacyService;
 
     @GetMapping("/toc/{tocId}/questions")
-    public ResponseEntity<SuccessResponse<List<GetUserQuestionsDto>>> getQuestions(Authentication authentication, @PathVariable("tocId") Long tocId) {
+    public ResponseEntity<SuccessResponse<List<GetUserQuestionsDto>>> getQuestions(
+        Authentication authentication,
+        @PathVariable("tocId") Long tocId
+    ) {
         UUID uuid = (UUID) authentication.getPrincipal();
         List<GetUserQuestionsDto> result = lifeLegacyService.getQuestions(tocId, uuid);
 
@@ -33,11 +38,13 @@ public class LifeLegacyController {
 
     @PostMapping("/questions/{questionId}/answers")
     public ResponseEntity<SuccessResponse<Void>> answerQuestion(
-        Authentication authentication, @PathVariable("questionId") Long questionId,
-        @RequestBody SaveUserAnswerDto saveUserAnswerDto
+        Authentication authentication,
+        @PathVariable("questionId") Long questionId,
+        @Valid @RequestBody SaveUserAnswerDto saveUserAnswerDto
     ) {
         UUID uuid = (UUID) authentication.getPrincipal();
         lifeLegacyService.saveAnswer(uuid, questionId, saveUserAnswerDto);
+
         return ResponseEntity
             .status(200)
             .body(SuccessResponse.created());

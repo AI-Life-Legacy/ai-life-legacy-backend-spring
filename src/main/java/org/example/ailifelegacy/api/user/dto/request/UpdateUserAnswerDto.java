@@ -1,4 +1,4 @@
-package org.example.ailifelegacy.api.life_legacy.dto.request;
+package org.example.ailifelegacy.api.user.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

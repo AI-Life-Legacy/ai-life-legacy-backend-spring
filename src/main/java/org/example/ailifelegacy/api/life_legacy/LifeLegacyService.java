@@ -1,10 +1,7 @@
 package org.example.ailifelegacy.api.life_legacy;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.util.List;
-import java.util.Optional;
-import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -17,30 +14,30 @@ import org.example.ailifelegacy.api.life_legacy_question.entity.LifeLegacyQuesti
 import org.example.ailifelegacy.api.life_legacy_toc.LifeLegacyTocRepository;
 import org.example.ailifelegacy.api.life_legacy_toc.entity.LifeLegacyToc;
 import org.example.ailifelegacy.api.user.UserRepository;
-import org.example.ailifelegacy.api.user.dto.request.SaveUserIntroDto;
 import org.example.ailifelegacy.api.user.entity.User;
+import org.example.ailifelegacy.common.error.exception.ConflictException;
+import org.example.ailifelegacy.common.error.exception.NotFoundException;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
+@org.springframework.transaction.annotation.Transactional(readOnly = true) // 기본은 조회 전용
 public class LifeLegacyService {
     private final LifeLegacyRepository lifeLegacyRepository;
     private final LifeLegacyQuestionRepository lifeLegacyQuestionRepository;
     private final LifeLegacyTocRepository lifeLegacyTocRepository;
     private final UserRepository userRepository;
 
-
-    @Transactional
     public List<GetUserQuestionsDto> getQuestions(Long tocId, UUID uuid) {
         // 1. tocId로 질문 가져오기 (questions까지 fetch join)
         LifeLegacyToc toc = lifeLegacyTocRepository.findByIdWithQuestions(tocId)
-            .orElseThrow(() -> new IllegalArgumentException("toc not found: " + tocId));
+            .orElseThrow(() -> new NotFoundException("존재하지 않은 목차입니다. tocId: " + tocId));
 
         List<LifeLegacyQuestion> tocQuestions = toc.getQuestions();
 
         // 2. 유저가 작성한 모든 답변 가져오기
         User user = userRepository.findByUuid(uuid)
-            .orElseThrow(() -> new EntityNotFoundException("User not found with uuid: " + uuid));
+            .orElseThrow(() -> new NotFoundException("존재하지 않은 유저입니다."));
 
         List<LifeLegacyAnswer> userAnswers = lifeLegacyRepository.findByUser(user);
 
@@ -61,13 +58,13 @@ public class LifeLegacyService {
         String answerText = saveUserAnswerDto.getAnswerText();
 
         User user = userRepository.findByUuid(uuid)
-            .orElseThrow(() -> new EntityNotFoundException("User not found with uuid: " + uuid));
+            .orElseThrow(() -> new NotFoundException("존재하지 않은 유저입니다."));
 
         LifeLegacyQuestion question = lifeLegacyQuestionRepository.findById(questionId)
-            .orElseThrow(() -> new EntityNotFoundException("Question not found with id: " + questionId));
+            .orElseThrow(() ->  new NotFoundException("존재하지 않은 질문입니다. questionId: " + questionId));
 
         boolean exists = lifeLegacyRepository.findOneByUserAndQuestion(user, question).isPresent();
-        if (exists) throw new IllegalStateException("Answer already exists");
+        if (exists) throw new ConflictException("이미 작성한 질문입니다.");
 
         LifeLegacyAnswer userAnswer = LifeLegacyAnswer.builder()
             .answerText(answerText)

@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.example.ailifelegacy.api.life_legacy.LifeLegacyRepository;
-import org.example.ailifelegacy.api.life_legacy.dto.request.UpdateUserAnswerDto;
+import org.example.ailifelegacy.api.user.dto.request.UpdateUserAnswerDto;
 import org.example.ailifelegacy.api.life_legacy.entity.LifeLegacyAnswer;
 import org.example.ailifelegacy.api.life_legacy_question.LifeLegacyQuestionRepository;
 import org.example.ailifelegacy.api.life_legacy_question.entity.LifeLegacyQuestion;
@@ -124,7 +124,7 @@ public class UserService {
         LifeLegacyAnswer userAnswer = lifeLegacyRepository.findOneByUserAndId(user, answerId)
             .orElseThrow(() -> new EntityNotFoundException("유저의 답변을 찾을 수 없습니다."));
 
-        userAnswer.setAnswerText(newAnswerText);
+        userAnswer.updateUserAnswer(newAnswerText);
         lifeLegacyRepository.save(userAnswer);
     }
 }

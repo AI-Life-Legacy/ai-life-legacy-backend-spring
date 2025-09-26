@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
     }
 )
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
@@ -53,4 +52,8 @@ public class LifeLegacyAnswer {
         foreignKey = @ForeignKey(name = "fk_answer_question")
     )
     private LifeLegacyQuestion question;
+
+    public void updateUserAnswer(String answerText) {
+        this.answerText = answerText;
+    }
 }
