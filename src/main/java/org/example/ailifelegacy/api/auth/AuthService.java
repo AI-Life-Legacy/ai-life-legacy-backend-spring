@@ -94,7 +94,7 @@ public class AuthService {
         // 2. refresh token에 저장되어 있는 uuid로 사용자 조회
         Authentication auth = tokenProvider.getRefreshTokenAuthentication(clientRefreshToken);
         UUID userUuid = (UUID) auth.getPrincipal();
-        User user = userRepository.findByUuid(userUuid)
+        User user = userRepository.findById(userUuid)
             .orElseThrow(() -> new NotFoundException("사용자를 찾을 수 없습니다."));
 
         // 3. DB에 저장된 refresh token 조회

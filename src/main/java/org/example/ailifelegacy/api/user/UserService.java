@@ -23,10 +23,14 @@ import org.example.ailifelegacy.api.user_case.UserCaseRepository;
 import org.example.ailifelegacy.api.user_case.entity.UserCase;
 import org.example.ailifelegacy.api.user_intro.UserIntroRepository;
 import org.example.ailifelegacy.api.user_intro.entity.UserIntro;
+import org.example.ailifelegacy.common.error.exception.ConflictException;
+import org.example.ailifelegacy.common.error.exception.NotFoundException;
+import org.example.ailifelegacy.common.error.exception.UnauthorizedException;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
+@org.springframework.transaction.annotation.Transactional(readOnly = true) // 기본은 조회 전용
 public class UserService {
     private final UserRepository userRepository;
     private final UserIntroRepository userIntroRepository;
@@ -37,31 +41,29 @@ public class UserService {
 
     @Transactional
     public void saveUserIntro(UUID uuid, SaveUserIntroDto saveUserIntroDto) {
-        String userIntroText = saveUserIntroDto.getUserIntro();
-        User user = userRepository.findByUuid(uuid)
-            .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        User user = userRepository.findById(uuid)
+            .orElseThrow(() -> new UnauthorizedException("존재하지 않는 사용자입니다."));
 
         boolean exits = userIntroRepository.findByUser(user).isPresent();
-        if (exits) throw new IllegalStateException("이미 해당 유저의 자기소개가 존재합니다.");
+        if (exits) throw new ConflictException("이미 유저의 자기소개가 존재합니다.");
 
         // UserCase AI 서버한테 받아오기
         String caseName = "case1";
-        UserCase userCase = userCaseRepository.findUserCaseByCaseName(caseName);
 
-        user.setUserCase(userCase);
-        userRepository.save(user);
+        UserCase userCase = userCaseRepository.findUserCaseByCaseName(caseName)
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 유저케이스입니다. userCaseName: " + caseName));
+        user.updateUserCase(userCase);
 
         UserIntro userIntro = UserIntro.builder()
-            .introText(userIntroText)
+            .introText(saveUserIntroDto.getUserIntro())
             .user(user)
             .build();
         userIntroRepository.save(userIntro);
     }
 
-    @Transactional
     public List<GetUserTocResponseDto> getUserToc(UUID uuid) {
-        User user = userRepository.findByUuid(uuid)
-            .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        User user = userRepository.findById(uuid)
+            .orElseThrow(() -> new UnauthorizedException("존재하지 않는 사용자입니다."));
 
         UserCase userCase = user.getUserCase();
         List<LifeLegacyToc> userToc = lifeLegacyTocRepository.findByUserCases(userCase);
@@ -72,11 +74,8 @@ public class UserService {
     }
 
     public List<GetUserTocWithQuestionsResponseDto> getUserTocAndQuestions(UUID uuid) {
-        User user = userRepository.findByUuid(uuid)
-            .orElseThrow(() -> {
-                System.out.println("User not found with uuid: " + uuid);
-                return new IllegalArgumentException("사용자를 찾을 수 없습니다.");
-            });
+        User user = userRepository.findById(uuid)
+            .orElseThrow(() -> new UnauthorizedException("존재하지 않는 사용자입니다."));
 
         UserCase userCase = user.getUserCase();
         List<LifeLegacyToc> userToc = lifeLegacyTocRepository.findByUserCases(userCase);
@@ -98,33 +97,28 @@ public class UserService {
     }
 
     public GetUserAnswerResponseDto getUserAnswer(Long questionId, UUID uuid) {
-        User user = userRepository.findByUuid(uuid)
-            .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        User user = userRepository.findById(uuid)
+            .orElseThrow(() -> new UnauthorizedException("존재하지 않는 사용자입니다."));
 
         LifeLegacyQuestion question =  lifeLegacyQuestionRepository.findById(questionId)
-            .orElseThrow(() -> new EntityNotFoundException("Question not found with id: " + questionId));
+            .orElseThrow(() ->  new NotFoundException("존재하지 않은 질문입니다. questionId: " + questionId));
 
-        Optional<LifeLegacyAnswer> userAnswer = lifeLegacyRepository.findOneByUserAndQuestion(user, question);
+        LifeLegacyAnswer userAnswer = lifeLegacyRepository.findOneByUserAndQuestion(user, question)
+            .orElseThrow(() -> new NotFoundException("작성하지 않은 질문입니다."));
 
-        return userAnswer
-            .map(answer -> new GetUserAnswerResponseDto(
-                questionId,
-                answer.getAnswerText()
-            ))
-            .orElseThrow(() -> new EntityNotFoundException("해당 질문의 답변을 찾을 수 없습니다."));
+        return new GetUserAnswerResponseDto(questionId, userAnswer.getAnswerText());
     }
 
     @Transactional
     public void updateUserAnswer(Long answerId, UUID uuid, UpdateUserAnswerDto updateUserAnswerDto) {
         String newAnswerText = updateUserAnswerDto.getNewAnswerText();
 
-        User user = userRepository.findByUuid(uuid)
-            .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        User user = userRepository.findById(uuid)
+            .orElseThrow(() -> new UnauthorizedException("존재하지 않는 사용자입니다."));
 
         LifeLegacyAnswer userAnswer = lifeLegacyRepository.findOneByUserAndId(user, answerId)
-            .orElseThrow(() -> new EntityNotFoundException("유저의 답변을 찾을 수 없습니다."));
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 답변입니다."));
 
         userAnswer.updateUserAnswer(newAnswerText);
-        lifeLegacyRepository.save(userAnswer);
     }
 }

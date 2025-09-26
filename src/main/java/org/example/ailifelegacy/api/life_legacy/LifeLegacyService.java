@@ -17,6 +17,7 @@ import org.example.ailifelegacy.api.user.UserRepository;
 import org.example.ailifelegacy.api.user.entity.User;
 import org.example.ailifelegacy.common.error.exception.ConflictException;
 import org.example.ailifelegacy.common.error.exception.NotFoundException;
+import org.example.ailifelegacy.common.error.exception.UnauthorizedException;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -36,8 +37,8 @@ public class LifeLegacyService {
         List<LifeLegacyQuestion> tocQuestions = toc.getQuestions();
 
         // 2. 유저가 작성한 모든 답변 가져오기
-        User user = userRepository.findByUuid(uuid)
-            .orElseThrow(() -> new NotFoundException("존재하지 않은 유저입니다."));
+        User user = userRepository.findById(uuid)
+            .orElseThrow(() -> new UnauthorizedException("존재하지 않는 사용자입니다."));
 
         List<LifeLegacyAnswer> userAnswers = lifeLegacyRepository.findByUser(user);
 
@@ -55,10 +56,8 @@ public class LifeLegacyService {
 
     @Transactional
     public void saveAnswer(UUID uuid, Long questionId, SaveUserAnswerDto saveUserAnswerDto) {
-        String answerText = saveUserAnswerDto.getAnswerText();
-
-        User user = userRepository.findByUuid(uuid)
-            .orElseThrow(() -> new NotFoundException("존재하지 않은 유저입니다."));
+        User user = userRepository.findById(uuid)
+            .orElseThrow(() -> new UnauthorizedException("존재하지 않는 사용자입니다."));
 
         LifeLegacyQuestion question = lifeLegacyQuestionRepository.findById(questionId)
             .orElseThrow(() ->  new NotFoundException("존재하지 않은 질문입니다. questionId: " + questionId));
@@ -67,7 +66,7 @@ public class LifeLegacyService {
         if (exists) throw new ConflictException("이미 작성한 질문입니다.");
 
         LifeLegacyAnswer userAnswer = LifeLegacyAnswer.builder()
-            .answerText(answerText)
+            .answerText(saveUserAnswerDto.getAnswerText())
             .question(question)
             .user(user)
             .build();

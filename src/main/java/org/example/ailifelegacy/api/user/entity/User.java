@@ -21,7 +21,6 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Getter
-@Setter
 @Builder
 @Entity
 public class User {
@@ -50,5 +49,9 @@ public class User {
 
     public static User createEmptyUser() {
         return new User();
+    }
+
+    public void updateUserCase(UserCase userCase) {
+        this.userCase = userCase;
     }
 }
