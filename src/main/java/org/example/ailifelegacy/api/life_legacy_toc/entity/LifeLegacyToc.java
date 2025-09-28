@@ -3,6 +3,7 @@ package org.example.ailifelegacy.api.life_legacy_toc.entity;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.ailifelegacy.api.life_legacy_question.entity.LifeLegacyQuestion;
 import org.example.ailifelegacy.api.user_case.entity.UserCase;
+import org.example.ailifelegacy.api.user_case_toc.entity.UserCaseTocMapping;
 
 @Entity
 @Table(name = "table_of_contents")
@@ -26,9 +28,6 @@ public class LifeLegacyToc {
     @Column(length = 255, nullable = false)
     private String title;
 
-    @Column(name = "order_index", nullable = false)
-    private Integer orderIndex;
-
     @ManyToMany
     @JoinTable(
         name = "toc_question_mapping", // 조인 테이블 이름
@@ -37,6 +36,6 @@ public class LifeLegacyToc {
     )
     private List<LifeLegacyQuestion> questions = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "tocs")
-    private List<UserCase> userCases;
+    @OneToMany(mappedBy = "toc", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserCaseTocMapping> caseMappings = new ArrayList<>();
 }

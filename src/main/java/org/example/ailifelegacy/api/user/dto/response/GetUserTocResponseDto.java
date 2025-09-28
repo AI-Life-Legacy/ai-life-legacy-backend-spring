@@ -8,5 +8,4 @@ import lombok.Getter;
 public class GetUserTocResponseDto {
     private Long id;
     private String title;
-    private Integer orderIndex;
 }

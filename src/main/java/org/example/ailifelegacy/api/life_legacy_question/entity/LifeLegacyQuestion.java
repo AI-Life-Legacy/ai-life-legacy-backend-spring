@@ -22,9 +22,6 @@ public class LifeLegacyQuestion {
     @Column(name = "question_text", length = 500, nullable = false)
     private String questionText;
 
-    @Column(name = "order_index", nullable = false)
-    private Integer orderIndex;
-
     @ManyToMany(mappedBy = "questions")
     private List<LifeLegacyToc> tocs = new ArrayList<>();
 

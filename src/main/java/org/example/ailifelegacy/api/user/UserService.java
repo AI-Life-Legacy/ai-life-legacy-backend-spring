@@ -21,6 +21,8 @@ import org.example.ailifelegacy.api.user.dto.response.GetUserTocWithQuestionsRes
 import org.example.ailifelegacy.api.user.entity.User;
 import org.example.ailifelegacy.api.user_case.UserCaseRepository;
 import org.example.ailifelegacy.api.user_case.entity.UserCase;
+import org.example.ailifelegacy.api.user_case_toc.UserCaseTocRepository;
+import org.example.ailifelegacy.api.user_case_toc.entity.UserCaseTocMapping;
 import org.example.ailifelegacy.api.user_intro.UserIntroRepository;
 import org.example.ailifelegacy.api.user_intro.entity.UserIntro;
 import org.example.ailifelegacy.common.error.exception.ConflictException;
@@ -38,6 +40,7 @@ public class UserService {
     private final LifeLegacyTocRepository lifeLegacyTocRepository;
     private final LifeLegacyRepository lifeLegacyRepository;
     private final LifeLegacyQuestionRepository lifeLegacyQuestionRepository;
+    private final UserCaseTocRepository userCaseTocRepository;
 
     @Transactional
     public void saveUserIntro(UUID uuid, SaveUserIntroDto saveUserIntroDto) {
@@ -66,10 +69,16 @@ public class UserService {
             .orElseThrow(() -> new UnauthorizedException("존재하지 않는 사용자입니다."));
 
         UserCase userCase = user.getUserCase();
-        List<LifeLegacyToc> userToc = lifeLegacyTocRepository.findByUserCases(userCase);
+        List<UserCaseTocMapping> mappings = userCaseTocRepository.findAllByUserCase(userCase);
 
-        return userToc.stream()
-            .map(toc -> new GetUserTocResponseDto(toc.getId(), toc.getTitle(), toc.getOrderIndex()))
+        return mappings.stream()
+            .map(mapping -> {
+                LifeLegacyToc toc = mapping.getToc(); // 매핑에서 Toc 꺼냄
+                return new GetUserTocResponseDto(
+                    toc.getId(),
+                    toc.getTitle()
+                );
+            })
             .toList();
     }
 
@@ -78,21 +87,26 @@ public class UserService {
             .orElseThrow(() -> new UnauthorizedException("존재하지 않는 사용자입니다."));
 
         UserCase userCase = user.getUserCase();
-        List<LifeLegacyToc> userToc = lifeLegacyTocRepository.findByUserCases(userCase);
+        List<UserCaseTocMapping> mappings = userCaseTocRepository.findAllByUserCase(userCase);
 
-        return userToc.stream()
-            .map(toc -> new GetUserTocWithQuestionsResponseDto(
-                toc.getId(),
-                toc.getTitle(),
-                toc.getOrderIndex(),
-                toc.getQuestions().stream()
-                    .map(q -> new GetUserQuestionResponseDto(
-                        q.getId(),
-                        q.getQuestionText(),
-                        q.getOrderIndex()
-                    ))
-                    .toList()
-            ))
+        return mappings.stream()
+            .map(mapping -> {
+                LifeLegacyToc toc = mapping.getToc(); // 단일 객체
+                return GetUserTocWithQuestionsResponseDto.builder()
+                    .tocId(toc.getId())
+                    .tocTitle(toc.getTitle())
+                    .orderIndex(mapping.getOrderIndex()) // 매핑 테이블의 orderIndex
+                    .questions(
+                        toc.getQuestions().stream()
+                            .map(q -> GetUserQuestionResponseDto.builder()
+                                .id(q.getId())
+                                .questionText(q.getQuestionText())
+                                .build()
+                            )
+                            .toList()
+                    )
+                    .build();
+            })
             .toList();
     }
 
